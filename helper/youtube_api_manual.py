@@ -1,6 +1,7 @@
 import json
 import os
 
+import googleapiclient
 # необходимо установить через: pip install google-api-python-client
 from googleapiclient.discovery import build
 
@@ -11,7 +12,7 @@ import isodate
 api_key: str = os.getenv('YT_API_KEY')
 
 # создать специальный объект для работы с API
-youtube = build('youtube', 'v3', developerKey=api_key)
+youtube = googleapiclient.discovery.build('youtube', 'v3', developerKey=api_key)
 
 
 def printj(dict_to_print: dict) -> None:
