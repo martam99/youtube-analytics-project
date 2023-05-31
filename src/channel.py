@@ -64,3 +64,4 @@ class Channel:
             file.write(json.dumps(json_dict, indent=2, ensure_ascii=False))
 
 
+print(Channel.api_key)
