@@ -1,19 +1,16 @@
 import datetime
-import os
-from googleapiclient.discovery import build
 import isodate
+from src.mixin_api import APIMixin
 
 
-class PlayList:
+class PlayList(APIMixin):
     """Класс для плейлиста на Ютубе"""
-    api_key: str = os.getenv('YT-API_KEY')
-    youtube = build('youtube', 'v3', developerKey=api_key)
 
     def __init__(self, playlist_id):
         self.playlist_id = playlist_id
-        self.playlist = self.youtube.playlists().list(id=playlist_id,
-                                                      part='snippet, contentDetails',
-                                                      ).execute()
+        self.playlist = self.get_service().playlists().list(id=playlist_id,
+                                                            part='snippet, contentDetails',
+                                                            ).execute()
         self.title = self.playlist['items'][0]['snippet']['localized']['title']
         self.url = 'https://www.youtube.com/playlist?list=' + self.playlist_id
 
@@ -21,7 +18,7 @@ class PlayList:
     def total_duration(self):
         """Получаем данные по видеороликам в плейлисте"""
         time_list = []
-        playlist_videos = self.youtube.playlistItems().list(playlistId=self.playlist_id,
+        playlist_videos = self.get_service().playlistItems().list(playlistId=self.playlist_id,
                                                             part='contentDetails',
                                                             maxResults=50,
                                                             ).execute()
@@ -29,7 +26,7 @@ class PlayList:
         video_ids: list[str] = [video['contentDetails']['videoId'] for video in playlist_videos['items']]
 
         # Выводим длительности видеороликов из плейлиста с суммарной длительностью
-        video_response = self.youtube.videos().list(part='contentDetails,statistics',
+        video_response = self.get_service().videos().list(part='contentDetails,statistics',
                                                     id=','.join(video_ids)
                                                     ).execute()
 
@@ -43,13 +40,13 @@ class PlayList:
 
     def show_best_video(self):
         """Метод выводит самое популярное видео из плейлиста"""
-        playlist_videos = self.youtube.playlistItems().list(playlistId=self.playlist_id,
+        playlist_videos = self.get_service().playlistItems().list(playlistId=self.playlist_id,
                                                             part='contentDetails',
                                                             maxResults=50,
                                                             ).execute()
         video_ids: list[str] = [video['contentDetails']['videoId'] for video in playlist_videos['items']]
 
-        video_response = self.youtube.videos().list(part='contentDetails,statistics',
+        video_response = self.get_service().videos().list(part='contentDetails,statistics',
                                                     id=','.join(video_ids),
                                                     ).execute()
 
